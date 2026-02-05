@@ -147,20 +147,25 @@ class _InitialsFallback extends StatelessWidget {
   }
 }
 
-/// A default fallback widget that shows a "no image" illustration when image fails and `isProfile` is false.
+/// A default fallback widget that shows a customizable widget when image fails.
 class _NotFoundWidget extends StatelessWidget {
   final double height;
+  final Widget? fallbackWidget;
 
-  const _NotFoundWidget({required this.height});
+  const _NotFoundWidget({
+    required this.height,
+    this.fallbackWidget, // Accept any custom widget
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Image.network(
-        'https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg',
-        fit: BoxFit.cover,
-        height: height,
-      ),
+      child: fallbackWidget ??
+          Image.network(
+            'https://png.pngtree.com/png-vector/20190820/ourmid/pngtree-no-image-vector-illustration-isolated-png-image_1694547.jpg',
+            fit: BoxFit.cover,
+            height: height,
+          ),
     );
   }
 }
