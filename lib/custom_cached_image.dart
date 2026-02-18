@@ -55,13 +55,14 @@ class CustomCachedImage extends StatelessWidget {
           width: width,
           borderRadius: borderRadius,
         ),
-        errorWidget: (_, __, ___) => errorWidget ??
+        errorWidget: (_, __, ___) =>
+            errorWidget ??
             (isProfile
                 ? _InitialsFallback(name: name, size: height)
                 : _NotFoundWidget(
-              height: height,
-              fallbackWidget: errorWidget,
-            )),
+                    height: height,
+                    fallbackWidget: errorWidget,
+                  )),
       ),
     );
   }
@@ -104,9 +105,16 @@ class _InitialsFallback extends StatelessWidget {
   /// Generates initials from the name (e.g., "John Doe" -> "JD").
   String _getInitials(String? fullName) {
     if (fullName == null || fullName.trim().isEmpty) return "?";
-    final parts = fullName.trim().split(" ");
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+    final parts = fullName
+        .trim()
+        .split(RegExp(r'\s+')) // 👈 handles multiple spaces
+        .where((e) => e.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return "!?!";
+    if (parts.length == 1) {
+      return parts.first.characters.first.toUpperCase();
+    }
+    return (parts.first.characters.first + parts.last.characters.first).toUpperCase();
   }
 
   /// Generates a background color based on the name hash.
