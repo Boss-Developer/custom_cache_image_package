@@ -29,6 +29,7 @@ class CustomCachedImage extends StatelessWidget {
   /// Optional custom widget to show if image fails to load.
   final Widget? errorWidget;
 
+  /// Creates a [CustomCachedImage] widget.
   const CustomCachedImage({
     super.key,
     required this.height,
@@ -56,21 +57,28 @@ class CustomCachedImage extends StatelessWidget {
           borderRadius: borderRadius,
         ),
         errorWidget: (_, __, ___) =>
-            errorWidget ??
+        errorWidget ??
             (isProfile
                 ? _InitialsFallback(name: name, size: height)
                 : _NotFoundWidget(
-                    height: height,
-                    fallbackWidget: errorWidget,
-                  )),
+              height: height,
+              fallbackWidget: errorWidget,
+            )),
       ),
     );
   }
 }
 
-/// A shimmer effect placeholder for image loading state.
+/// Shimmer effect placeholder for image loading.
 class _ShimmerEffect extends StatelessWidget {
-  final double height, width, borderRadius;
+  /// The height of the shimmer.
+  final double height;
+
+  /// The width of the shimmer.
+  final double width;
+
+  /// Border radius for the shimmer container.
+  final double borderRadius;
 
   const _ShimmerEffect({
     required this.height,
@@ -95,26 +103,28 @@ class _ShimmerEffect extends StatelessWidget {
   }
 }
 
-/// A fallback widget that shows user initials in a colored box if image fails to load.
+/// Fallback widget that shows user initials if image fails to load.
 class _InitialsFallback extends StatelessWidget {
+  /// Full name to generate initials.
   final String? name;
+
+  /// Size of the square fallback box.
   final double size;
 
   const _InitialsFallback({this.name, required this.size});
 
-  /// Generates initials from the name (e.g., "John Doe" -> "JD").
+  /// Generates initials from a full name.
   String _getInitials(String? fullName) {
     if (fullName == null || fullName.trim().isEmpty) return "?";
     final parts = fullName
         .trim()
-        .split(RegExp(r'\s+')) // 👈 handles multiple spaces
+        .split(RegExp(r'\s+'))
         .where((e) => e.isNotEmpty)
         .toList();
     if (parts.isEmpty) return "!?!";
-    if (parts.length == 1) {
-      return parts.first.characters.first.toUpperCase();
-    }
-    return (parts.first.characters.first + parts.last.characters.first).toUpperCase();
+    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
+    return (parts.first.characters.first + parts.last.characters.first)
+        .toUpperCase();
   }
 
   /// Generates a background color based on the name hash.
@@ -158,14 +168,17 @@ class _InitialsFallback extends StatelessWidget {
   }
 }
 
-/// A default fallback widget that shows a customizable widget when image fails.
+/// Default widget to display when image fails and no initials fallback is used.
 class _NotFoundWidget extends StatelessWidget {
+  /// Height of the fallback image.
   final double height;
+
+  /// Optional custom widget to display instead of the default image.
   final Widget? fallbackWidget;
 
   const _NotFoundWidget({
     required this.height,
-    this.fallbackWidget, // Accept any custom widget
+    this.fallbackWidget,
   });
 
   @override

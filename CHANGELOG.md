@@ -1,3 +1,20 @@
+## 1.7.0 2026-March-16
+
+### Updated
+
+* Improved cached image loading performance.
+* Minor bug fixes and improvements.
+
+
+## 1.6.0 2026-Feb-25
+
+### Updated
+
+* Improved cached image loading performance.
+* Added shimmer loading effect.
+* Added asset placeholders.
+* Minor bug fixes and improvements.
+
 
 ## 1.5.0 - 2026-Feb-05
 
