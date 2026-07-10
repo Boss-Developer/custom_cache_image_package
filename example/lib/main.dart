@@ -1,4 +1,4 @@
-import 'package:custom_cached_image/custom_cached_image_with_shimmer.dart';
+import 'package:custom_cached_image/custom_cached_image.dart';
 import 'package:flutter/material.dart';
 
 void main() {

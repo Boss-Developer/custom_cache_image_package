@@ -1,6 +1,6 @@
 name: custom_cached_image
 description: A Flutter package for displaying cached network images with a shimmer loading effect.
-version: 1.7.0
+version: 1.8.0
 
 homepage: https://github.com/manushah77/custom_cached_image
 repository: https://github.com/manushah77/custom_cached_image
