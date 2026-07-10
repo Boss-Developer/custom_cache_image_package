@@ -85,10 +85,10 @@ packages:
     dependency: "direct main"
     description:
       name: custom_cached_image
-      sha256: d453ef678289e5e89804321037ffce78d3397fa88be8bd31813aec70bc82ab25
+      sha256: "6cfdf4cd30f81fb9d2d61d4c92dfa725794a945397a14bae1bf0d0481f75421a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.8.0"
+    version: "1.9.0"
   fake_async:
     dependency: transitive
     description:
