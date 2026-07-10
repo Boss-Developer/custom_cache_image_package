@@ -9,94 +9,102 @@ enum CachedImageLoadingStyle {
 }
 
 class CustomCachedImage extends StatefulWidget {
-  /// Display dimensions.
+  /// Image display height.
   final double height;
+
+  /// Image display width.
   final double width;
 
-  /// The image URL.
+  /// Network image URL.
   ///
-  /// Null, empty, malformed, and unsupported URLs are handled locally.
+  /// Every non-empty value is passed directly to [CachedNetworkImage].
   final String? imageUrl;
 
-  /// Image border radius.
+  /// Border radius for rectangular images.
   final double borderRadius;
 
-  /// Image fitting behavior.
+  /// How the image should fit inside its bounds.
   final BoxFit fit;
 
   /// Image alignment.
   final Alignment alignment;
 
-  /// Use profile initials/person icon when the image fails.
+  /// Displays profile initials or a person icon when loading fails.
   final bool isProfile;
 
-  /// Name used for profile initials.
+  /// Name used to generate profile initials.
   final String? name;
 
-  /// Replaces the default error UI.
+  /// Custom widget displayed when image loading fails.
   final Widget? errorWidget;
 
-  /// Replaces the default loading UI.
+  /// Custom widget displayed while the image is loading.
   final Widget? placeholderWidget;
 
-  /// Loading indicator style.
+  /// Default loading indicator style.
   final CachedImageLoadingStyle loadingStyle;
 
-  /// Background shown behind loading/error states.
+  /// Background behind loading and error states.
   final Color backgroundColor;
 
-  /// Optional border.
+  /// Optional image border.
   final BoxBorder? border;
 
-  /// Error/fallback icon.
+  /// Default icon displayed for non-profile image errors.
   final IconData fallbackIcon;
 
-  /// Error/fallback icon color.
+  /// Color of fallback icons.
   final Color fallbackIconColor;
 
-  /// Whether a retry button should appear after a network failure.
+  /// Displays a retry button after a network failure.
   final bool showRetryButton;
 
   /// Called when image loading fails.
   final ValueChanged<Object>? onError;
 
-  /// Called when retry is triggered.
+  /// Called when the retry button is pressed.
   final VoidCallback? onRetry;
 
   /// Called when the image is tapped.
   final VoidCallback? onTap;
 
-  /// Optional custom cache key.
+  /// Optional custom image cache key.
   final String? cacheKey;
 
-  /// Automatically resize decoded images according to their display size.
+  /// Automatically resizes decoded images based on widget dimensions.
   final bool optimizeMemoryCache;
 
-  /// Optional manual memory-cache dimensions.
+  /// Optional manual memory-cache width.
   final int? memCacheWidth;
+
+  /// Optional manual memory-cache height.
   final int? memCacheHeight;
 
-  /// Keep the previous image while a new URL loads.
+  /// Keeps the old image visible while a new URL loads.
   final bool useOldImageOnUrlChange;
 
-  /// Optional Hero tag.
+  /// Optional Hero animation tag.
   final Object? heroTag;
 
   /// Accessibility label.
   final String? semanticLabel;
 
-  /// Fade durations.
+  /// Image fade-in duration.
   final Duration fadeInDuration;
+
+  /// Image fade-out duration.
   final Duration fadeOutDuration;
 
   /// Image rendering quality.
   final FilterQuality filterQuality;
 
-  /// Shimmer colors.
+  /// Shimmer base color.
   final Color shimmerBaseColor;
+
+  /// Shimmer highlight color.
   final Color shimmerHighlightColor;
 
-  /// Internal image shape.
+  /// Image shape.
   final BoxShape shape;
 
   const CustomCachedImage({
@@ -135,7 +143,7 @@ class CustomCachedImage extends StatefulWidget {
     this.shape = BoxShape.rectangle,
   });
 
-  /// Convenient constructor for profile avatars.
+  /// Circular constructor for profile images and avatars.
   const CustomCachedImage.circle({
     super.key,
     required double size,
@@ -180,27 +188,14 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
   int _reloadVersion = 0;
   bool _errorReported = false;
 
-  String get _normalizedUrl => widget.imageUrl?.trim() ?? '';
-
-  bool get _hasValidUrl {
-    if (_normalizedUrl.isEmpty) {
-      return false;
-    }
-
-    final uri = Uri.tryParse(_normalizedUrl);
-
-    if (uri == null || uri.host.isEmpty) {
-      return false;
-    }
-
-    return uri.scheme == 'http' || uri.scheme == 'https';
-  }
+  String get _normalizedUrl => widget.imageUrl ?? '';
 
   @override
   void didUpdateWidget(covariant CustomCachedImage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.imageUrl != widget.imageUrl) {
+    if (oldWidget.imageUrl != widget.imageUrl ||
+        oldWidget.cacheKey != widget.cacheKey) {
       _errorReported = false;
       _reloadVersion++;
     }
@@ -208,9 +203,9 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget result = _buildImageContent();
-
-    result = _buildFrame(result);
+    Widget result = _buildFrame(
+      child: _buildImageContent(),
+    );
 
     if (widget.heroTag != null) {
       result = Hero(
@@ -228,6 +223,7 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
     }
 
     return Semantics(
+      container: true,
       image: true,
       label: _resolveSemanticLabel(),
       child: result,
@@ -235,11 +231,13 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
   }
 
   Widget _buildImageContent() {
-    if (!_hasValidUrl) {
+
+    if (_normalizedUrl.isEmpty) {
+      _reportError(
+        const FormatException('Image URL is empty.'),
+      );
+
       return _buildErrorState(
-        error: const FormatException(
-          'Image URL is null, empty, or invalid.',
-        ),
         canRetry: false,
       );
     }
@@ -266,12 +264,13 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
         logicalDimension: widget.height,
         manualDimension: widget.memCacheHeight,
       ),
-      placeholder: (_, __) => _buildPlaceholder(),
+      placeholder: (_, __) {
+        return _buildPlaceholder();
+      },
       errorWidget: (_, __, error) {
         _reportError(error);
 
         return _buildErrorState(
-          error: error,
           canRetry: true,
         );
       },
@@ -309,18 +308,15 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
   }
 
   Widget _buildErrorState({
-    required Object error,
     required bool canRetry,
   }) {
-    if (widget.errorWidget != null) {
-      return SizedBox.expand(
-        child: widget.errorWidget,
-      );
-    }
-
     final Widget fallback;
 
-    if (widget.isProfile) {
+    if (widget.errorWidget != null) {
+      fallback = SizedBox.expand(
+        child: widget.errorWidget,
+      );
+    } else if (widget.isProfile) {
       fallback = _ProfileFallback(
         name: widget.name,
         width: widget.width,
@@ -359,38 +355,75 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
     );
   }
 
-  Widget _buildFrame(Widget child) {
-    final clippedChild = widget.shape == BoxShape.circle
-        ? ClipOval(
-      clipBehavior: Clip.antiAlias,
-      child: child,
-    )
-        : ClipRRect(
-      borderRadius: BorderRadius.circular(widget.borderRadius),
-      clipBehavior: Clip.antiAlias,
-      child: child,
+  Widget _buildFrame({
+    required Widget child,
+  }) {
+    final borderRadius = BorderRadius.circular(
+      widget.borderRadius,
     );
+
+    final Widget clippedChild;
+
+    if (widget.shape == BoxShape.circle) {
+      clippedChild = ClipOval(
+        clipBehavior: Clip.antiAlias,
+        child: child,
+      );
+    } else {
+      clippedChild = ClipRRect(
+        borderRadius: borderRadius,
+        clipBehavior: Clip.antiAlias,
+        child: child,
+      );
+    }
 
     return SizedBox(
       width: widget.width,
       height: widget.height,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: widget.backgroundColor,
-          shape: widget.shape,
-          border: widget.border,
-          borderRadius: widget.shape == BoxShape.rectangle
-              ? BorderRadius.circular(widget.borderRadius)
-              : null,
-        ),
-        position: DecorationPosition.foreground,
-        child: clippedChild,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          /*
+           * Background is painted behind the image.
+           *
+           * Do not use DecorationPosition.foreground here because a solid
+           * foreground color will cover the loaded image.
+           */
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: widget.backgroundColor,
+              shape: widget.shape,
+              borderRadius: widget.shape == BoxShape.rectangle
+                  ? borderRadius
+                  : null,
+            ),
+          ),
+
+          clippedChild,
+
+          /*
+           * The optional border is painted above the image without blocking
+           * gestures.
+           */
+          if (widget.border != null)
+            IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: widget.shape,
+                  border: widget.border,
+                  borderRadius: widget.shape == BoxShape.rectangle
+                      ? borderRadius
+                      : null,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
   Future<void> _retry() async {
-    if (!_hasValidUrl) {
+    if (_normalizedUrl.isEmpty) {
       return;
     }
 
@@ -398,7 +431,10 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
     widget.onRetry?.call();
 
     try {
-      await CachedNetworkImage.evictFromCache(_normalizedUrl);
+      await CachedNetworkImage.evictFromCache(
+        _normalizedUrl,
+        cacheKey: widget.cacheKey,
+      );
     } catch (error) {
       debugPrint(
         'CustomCachedImage cache eviction failed: $error',
@@ -453,21 +489,23 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
   }
 
   String _resolveSemanticLabel() {
-    if (widget.semanticLabel?.trim().isNotEmpty == true) {
-      return widget.semanticLabel!.trim();
+    final customLabel = widget.semanticLabel?.trim();
+
+    if (customLabel != null && customLabel.isNotEmpty) {
+      return customLabel;
     }
 
     if (widget.isProfile) {
       final profileName = widget.name?.trim();
 
-      if (profileName?.isNotEmpty == true) {
+      if (profileName != null && profileName.isNotEmpty) {
         return '$profileName profile image';
       }
 
       return 'Profile image';
     }
 
-    return 'Image';
+    return 'Network image';
   }
 }
 
@@ -532,7 +570,9 @@ class _ProfileFallback extends StatelessWidget {
             ? Icon(
           Icons.person_outline_rounded,
           color: iconColor,
-          size: (size * 0.48).clamp(20.0, 72.0).toDouble(),
+          size: (size * 0.48)
+              .clamp(20.0, 72.0)
+              .toDouble(),
         )
             : Padding(
           padding: EdgeInsets.all(size * 0.15),
@@ -543,8 +583,9 @@ class _ProfileFallback extends StatelessWidget {
               maxLines: 1,
               style: TextStyle(
                 color: Colors.white,
-                fontSize:
-                (size * 0.4).clamp(14.0, 72.0).toDouble(),
+                fontSize: (size * 0.4)
+                    .clamp(14.0, 72.0)
+                    .toDouble(),
                 height: 1,
                 fontWeight: FontWeight.w700,
               ),
@@ -572,17 +613,26 @@ class _ProfileFallback extends StatelessWidget {
     }
 
     if (nameParts.length == 1) {
-      return _firstCharacter(nameParts.first).toUpperCase();
+      return _firstCharacter(
+        nameParts.first,
+      ).toUpperCase();
     }
 
-    final firstInitial = _firstCharacter(nameParts.first);
-    final lastInitial = _firstCharacter(nameParts.last);
+    final firstInitial = _firstCharacter(
+      nameParts.first,
+    );
+
+    final lastInitial = _firstCharacter(
+      nameParts.last,
+    );
 
     return '$firstInitial$lastInitial'.toUpperCase();
   }
 
   String _firstCharacter(String value) {
-    return String.fromCharCode(value.runes.first);
+    return String.fromCharCode(
+      value.runes.first,
+    );
   }
 
   Color _generateAvatarColor(String? value) {
@@ -598,7 +648,9 @@ class _ProfileFallback extends StatelessWidget {
       hash = ((hash * 31) + codeUnit) & 0x7FFFFFFF;
     }
 
-    return _avatarColors[hash % _avatarColors.length];
+    return _avatarColors[
+    hash % _avatarColors.length
+    ];
   }
 }
 
@@ -617,13 +669,18 @@ class _GeneralImageFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = _shortestSide(width, height);
+    final size = _shortestSide(
+      width,
+      height,
+    );
 
     return Center(
       child: Icon(
         icon,
         color: iconColor,
-        size: (size * 0.38).clamp(22.0, 64.0).toDouble(),
+        size: (size * 0.38)
+            .clamp(22.0, 64.0)
+            .toDouble(),
       ),
     );
   }
@@ -640,11 +697,12 @@ class _RetryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonSize =
-    (availableSize * 0.28).clamp(24.0, 36.0).toDouble();
+    final buttonSize = (availableSize * 0.28)
+        .clamp(24.0, 36.0)
+        .toDouble();
 
     return Material(
-      color: Colors.black.withValues(alpha: 0.60),
+      color: Colors.black.withOpacity(0.60),
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -663,12 +721,17 @@ class _RetryButton extends StatelessWidget {
   }
 }
 
-double _shortestSide(double width, double height) {
-  final validWidth =
-  width.isFinite && width > 0 ? width : null;
+double _shortestSide(
+    double width,
+    double height,
+    ) {
+  final validWidth = width.isFinite && width > 0
+      ? width
+      : null;
 
-  final validHeight =
-  height.isFinite && height > 0 ? height : null;
+  final validHeight = height.isFinite && height > 0
+      ? height
+      : null;
 
   if (validWidth != null && validHeight != null) {
     return validWidth < validHeight

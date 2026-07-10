@@ -4,6 +4,33 @@ All notable changes to the `custom_cached_image` package are documented in this 
 
 ---
 
+## 1.9.0 - 2026-07-10
+
+### Fixed
+
+* Fixed successfully loaded network images being hidden by the widget background.
+* Fixed `DecorationPosition.foreground` painting the background color over images, shimmer placeholders, and error widgets.
+* Fixed valid image URLs being rejected by unnecessary HTTP and HTTPS URL validation.
+* Updated the widget to pass every non-empty image URL directly to `CachedNetworkImage`.
+* Fixed profile images not displaying when using API values such as `tenant.profileImage`.
+* Fixed image borders being rendered underneath loaded images.
+* Fixed inconsistent clipping between images, placeholders, fallback widgets, and borders.
+* Fixed stale image error states when `imageUrl` or `cacheKey` changed.
+* Fixed retry requests continuing to use a failed cached image.
+* Fixed cache eviction not respecting a custom `cacheKey`.
+* Fixed duplicate `onError` callbacks during widget rebuilds.
+* Fixed empty image URLs causing unnecessary network requests.
+* Fixed minor image loading, caching, retry, and rendering issues.
+
+### Updated
+
+* Improved network image compatibility by removing restrictive URL parsing.
+* Improved image frame rendering by keeping the background behind the image.
+* Improved retry handling and cache refresh behavior.
+* Improved profile image reliability.
+* Improved border rendering for circular and rectangular images.
+
+
 ## 1.8.0 - 2026-07-10
 
 ### Added
