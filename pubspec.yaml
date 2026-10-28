@@ -1,10 +1,10 @@
 name: custom_cached_image
 description: A Flutter package for displaying cached network images with a shimmer loading effect.
-version: 1.9.0
+version: 1.10.0
 
-homepage: https://github.com/manushah77/custom_cached_image
-repository: https://github.com/manushah77/custom_cached_image
-issue_tracker: https://github.com/manushah77/custom_cached_image/issues
+homepage: https://github.com/Boss-Developer/custom_cache_image_package
+repository: https://github.com/Boss-Developer/custom_cache_image_package
+issue_tracker: https://github.com/Boss-Developer/custom_cache_image_package/issues
 
 platforms:
   android:
@@ -21,8 +21,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cached_network_image: ^3.4.1
-  shimmer: ^3.0.0
+  cached_network_image: ^4.0.5
+  shimmer: ^4.0.0
 
 dev_dependencies:
   flutter_test:

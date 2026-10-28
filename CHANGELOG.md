@@ -4,6 +4,21 @@ All notable changes to the `custom_cached_image` package are documented in this 
 
 ---
 
+## 1.10.0 - 2026-10-28
+
+### Changed
+
+* Upgraded `cached_network_image` to `^4.0.5` and `shimmer` to `^4.0.0`.
+* Corrected the `homepage`, `repository` and `issue_tracker` URLs in `pubspec.yaml`.
+
+### Fixed
+
+* Replaced the deprecated `Color.withOpacity` call with `Color.withValues`.
+* Documented every public API member so the package analyzes without lints.
+* Fixed the unused variable warning in the package test and added real assertions.
+
+---
+
 ## 1.9.0 - 2026-07-10
 
 ### Fixed

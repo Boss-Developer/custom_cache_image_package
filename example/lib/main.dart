@@ -29,12 +29,16 @@ class ExampleScreen extends StatelessWidget {
   static const String validImageUrl =
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQq5NIheZGS3FXmFa9StpgLnYkLaXKd8j1qrH8GV_TsKYCV3t5QmK9zOlZq&s=10';
 
-  static const String invalidImageUrl = 'https://example.com/image-not-found.jpg';
+  static const String invalidImageUrl =
+      'https://example.com/image-not-found.jpg';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Custom Cached Image'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Custom Cached Image'),
+        centerTitle: true,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -72,7 +76,7 @@ class ExampleScreen extends StatelessWidget {
               imageUrl: validImageUrl,
               name: 'Mansoor Shah',
               size: 100,
-              border: Border.all(color: Colors.black,width: 2),
+              border: Border.all(color: Colors.black, width: 2),
               onError: (error) {
                 debugPrint('Profile image error: $error');
               },
@@ -84,7 +88,14 @@ class ExampleScreen extends StatelessWidget {
           const _SectionTitle(title: 'Profile Initials Fallback'),
           const SizedBox(height: 12),
 
-          const Center(child: CustomCachedImage.circle(imageUrl: '', name: 'Mansoor Ali', size: 100, showRetryButton: false)),
+          const Center(
+            child: CustomCachedImage.circle(
+              imageUrl: '',
+              name: 'Mansoor Ali',
+              size: 100,
+              showRetryButton: false,
+            ),
+          ),
 
           const SizedBox(height: 32),
 
@@ -120,7 +131,11 @@ class ExampleScreen extends StatelessWidget {
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [CircularProgressIndicator(strokeWidth: 2), SizedBox(height: 12), Text('Loading image...')],
+                  children: [
+                    CircularProgressIndicator(strokeWidth: 2),
+                    SizedBox(height: 12),
+                    Text('Loading image...'),
+                  ],
                 ),
               ),
             ),
@@ -159,7 +174,9 @@ class ExampleScreen extends StatelessWidget {
             fallbackIcon: Icons.cloud_off_rounded,
             fallbackIconColor: Colors.redAccent,
             onRetry: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Retrying image...')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Retrying image...')),
+              );
             },
             onError: (error) {
               debugPrint('Retry image error: $error');
@@ -180,14 +197,21 @@ class ExampleScreen extends StatelessWidget {
               isProfile: false,
               heroTag: 'cached-image-preview',
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ImagePreviewScreen()));
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ImagePreviewScreen(),
+                  ),
+                );
               },
             ),
           ),
 
           const SizedBox(height: 10),
 
-          const Text('Tap the image to open the Hero preview.', textAlign: TextAlign.center),
+          const Text(
+            'Tap the image to open the Hero preview.',
+            textAlign: TextAlign.center,
+          ),
 
           const SizedBox(height: 40),
         ],
@@ -203,7 +227,11 @@ class ImagePreviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: const Text('Image Preview'), backgroundColor: Colors.black, foregroundColor: Colors.white),
+      appBar: AppBar(
+        title: const Text('Image Preview'),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -230,7 +258,12 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700));
+    return Text(
+      title,
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    );
   }
 }
 
@@ -245,11 +278,23 @@ class _CustomErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.image_not_supported_outlined, size: 44, color: Colors.redAccent),
+            const Icon(
+              Icons.image_not_supported_outlined,
+              size: 44,
+              color: Colors.redAccent,
+            ),
             const SizedBox(height: 10),
-            Text('Image unavailable', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+            Text(
+              'Image unavailable',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 4),
-            Text('The image could not be loaded.', style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              'The image could not be loaded.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
       ),

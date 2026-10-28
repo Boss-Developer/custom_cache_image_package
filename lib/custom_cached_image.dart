@@ -2,12 +2,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+/// Placeholder style shown while a network image is loading.
 enum CachedImageLoadingStyle {
+  /// Animated shimmer placeholder.
   shimmer,
+
+  /// Circular progress indicator placeholder.
   spinner,
+
+  /// No placeholder; nothing is drawn while loading.
   none,
 }
 
+/// A cached network image with a configurable loading placeholder,
+/// error fallback, border and shape.
 class CustomCachedImage extends StatefulWidget {
   /// Image display height.
   final double height;
@@ -107,6 +115,7 @@ class CustomCachedImage extends StatefulWidget {
   /// Image shape.
   final BoxShape shape;
 
+  /// Creates a cached network image widget.
   const CustomCachedImage({
     super.key,
     required this.height,
@@ -231,7 +240,6 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
   }
 
   Widget _buildImageContent() {
-
     if (_normalizedUrl.isEmpty) {
       _reportError(
         const FormatException('Image URL is empty.'),
@@ -393,12 +401,10 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
             decoration: BoxDecoration(
               color: widget.backgroundColor,
               shape: widget.shape,
-              borderRadius: widget.shape == BoxShape.rectangle
-                  ? borderRadius
-                  : null,
+              borderRadius:
+                  widget.shape == BoxShape.rectangle ? borderRadius : null,
             ),
           ),
-
           clippedChild,
 
           /*
@@ -411,9 +417,8 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
                 decoration: BoxDecoration(
                   shape: widget.shape,
                   border: widget.border,
-                  borderRadius: widget.shape == BoxShape.rectangle
-                      ? borderRadius
-                      : null,
+                  borderRadius:
+                      widget.shape == BoxShape.rectangle ? borderRadius : null,
                 ),
               ),
             ),
@@ -482,10 +487,7 @@ class _CustomCachedImageState extends State<CustomCachedImage> {
 
     final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
 
-    return (logicalDimension * devicePixelRatio)
-        .round()
-        .clamp(1, 4096)
-        .toInt();
+    return (logicalDimension * devicePixelRatio).round().clamp(1, 4096).toInt();
   }
 
   String _resolveSemanticLabel() {
@@ -568,30 +570,26 @@ class _ProfileFallback extends StatelessWidget {
       child: Center(
         child: initials == null
             ? Icon(
-          Icons.person_outline_rounded,
-          color: iconColor,
-          size: (size * 0.48)
-              .clamp(20.0, 72.0)
-              .toDouble(),
-        )
+                Icons.person_outline_rounded,
+                color: iconColor,
+                size: (size * 0.48).clamp(20.0, 72.0).toDouble(),
+              )
             : Padding(
-          padding: EdgeInsets.all(size * 0.15),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              initials,
-              maxLines: 1,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: (size * 0.4)
-                    .clamp(14.0, 72.0)
-                    .toDouble(),
-                height: 1,
-                fontWeight: FontWeight.w700,
+                padding: EdgeInsets.all(size * 0.15),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    initials,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: (size * 0.4).clamp(14.0, 72.0).toDouble(),
+                      height: 1,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -648,9 +646,7 @@ class _ProfileFallback extends StatelessWidget {
       hash = ((hash * 31) + codeUnit) & 0x7FFFFFFF;
     }
 
-    return _avatarColors[
-    hash % _avatarColors.length
-    ];
+    return _avatarColors[hash % _avatarColors.length];
   }
 }
 
@@ -678,9 +674,7 @@ class _GeneralImageFallback extends StatelessWidget {
       child: Icon(
         icon,
         color: iconColor,
-        size: (size * 0.38)
-            .clamp(22.0, 64.0)
-            .toDouble(),
+        size: (size * 0.38).clamp(22.0, 64.0).toDouble(),
       ),
     );
   }
@@ -697,12 +691,10 @@ class _RetryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonSize = (availableSize * 0.28)
-        .clamp(24.0, 36.0)
-        .toDouble();
+    final buttonSize = (availableSize * 0.28).clamp(24.0, 36.0).toDouble();
 
     return Material(
-      color: Colors.black.withOpacity(0.60),
+      color: Colors.black.withValues(alpha: 0.60),
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -722,21 +714,15 @@ class _RetryButton extends StatelessWidget {
 }
 
 double _shortestSide(
-    double width,
-    double height,
-    ) {
-  final validWidth = width.isFinite && width > 0
-      ? width
-      : null;
+  double width,
+  double height,
+) {
+  final validWidth = width.isFinite && width > 0 ? width : null;
 
-  final validHeight = height.isFinite && height > 0
-      ? height
-      : null;
+  final validHeight = height.isFinite && height > 0 ? height : null;
 
   if (validWidth != null && validHeight != null) {
-    return validWidth < validHeight
-        ? validWidth
-        : validHeight;
+    return validWidth < validHeight ? validWidth : validHeight;
   }
 
   return validWidth ?? validHeight ?? 48;
