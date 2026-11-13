@@ -1,10 +1,15 @@
 # Custom Cached Image
 
-A flexible Flutter package that combines [`cached_network_image`](https://pub.dev/packages/cached_network_image) with [`shimmer`](https://pub.dev/packages/shimmer) to provide smooth loading states, image caching, profile initials, retry handling, and customizable error fallbacks.
+A flexible Flutter package for cached network images with smooth loading states, profile initials, retry handling, and customizable error fallbacks.
+
+**Zero third party dependencies.** The disk cache, the HTTP layer and the shimmer animation are all implemented inside the package, so it only depends on the Flutter SDK itself.
 
 ## ✨ Features
 
-* **Image caching:** Loads and caches network images efficiently.
+* **Zero dependencies:** No `cached_network_image`, no `shimmer`, no transitive package tree.
+* **Built-in disk cache:** Downloads are stored on disk and revalidated with `ETag` / `Last-Modified`.
+* **Offline friendly:** A stale cached copy is served when the network fails.
+* **Request de-duplication:** The same URL requested many times at once results in one download.
 * **Shimmer loading:** Displays an animated shimmer while images are loading.
 * **Multiple loading styles:** Choose shimmer, spinner, or no loading indicator.
 * **Profile initials:** Displays initials when a profile image is unavailable.
@@ -660,6 +665,78 @@ class ExampleScreen extends StatelessWidget {
 | `memCacheHeight`      | `int?`                    |             `null` | Manual memory-cache height                 |
 | `cacheKey`            | `String?`                 |             `null` | Optional custom cache identifier           |
 | `semanticLabel`       | `String?`                 |             `null` | Accessibility description                  |
+| `shimmerBaseColor`    | `Color`                   |         Light grey | Shimmer base color                         |
+| `shimmerHighlight...` | `Color`                   |        Almost white | Shimmer highlight color                   |
+| `shimmerPeriod`       | `Duration`                |             1400ms | Shimmer sweep duration                     |
+| `httpHeaders`         | `Map<String, String>?`    |             `null` | Extra headers sent with the image request  |
+| `useOldImageOnUrl...` | `bool`                    |             `true` | Keeps the old image while a new one loads  |
+| `fadeInDuration`      | `Duration`                |              250ms | Image fade-in duration                     |
+| `fadeOutDuration`     | `Duration`                |              150ms | Placeholder fade-out duration              |
+
+---
+
+## 🗄️ Cache Management
+
+The package ships its own disk cache. It needs no setup, but it can be tuned
+and controlled through `CustomImageCacheManager`.
+
+```dart
+CustomImageCacheManager.configure(
+  const ImageCacheConfig(
+    staleAfter: Duration(days: 3),   // revalidate after this long
+    maxAge: Duration(days: 30),      // delete entries older than this
+    maxEntries: 400,                 // maximum number of cached files
+    maxBytes: 200 * 1024 * 1024,     // maximum cache size on disk
+    timeout: Duration(seconds: 30),  // per download timeout
+  ),
+);
+
+// Remove a single image from disk and memory.
+await CustomImageCacheManager.evict('https://example.com/avatar.png');
+
+// Wipe the whole cache.
+await CustomImageCacheManager.clear();
+
+// Inspect the cache size.
+final bytes = await CustomImageCacheManager.currentSizeInBytes();
+```
+
+You can also use the image provider on its own, anywhere a Flutter
+`ImageProvider` is accepted:
+
+```dart
+DecoratedBox(
+  decoration: BoxDecoration(
+    image: DecorationImage(
+      image: CustomCachedImageProvider(url: 'https://example.com/bg.jpg'),
+      fit: BoxFit.cover,
+    ),
+  ),
+)
+```
+
+### Platform notes
+
+| Platform                              | Caching behavior                       |
+| ------------------------------------- | -------------------------------------- |
+| Android, iOS, macOS, Windows, Linux   | Package disk cache + Flutter memory cache |
+| Web                                   | Browser HTTP cache + Flutter memory cache |
+
+On web there is no writable file system available without extra
+dependencies, so the widget renders through Flutter's own network image
+loader and the browser performs the HTTP caching.
+
+### Standalone shimmer
+
+The shimmer is exported too, so it can be used for any skeleton UI:
+
+```dart
+CustomShimmer(
+  baseColor: Colors.grey.shade300,
+  highlightColor: Colors.grey.shade100,
+  child: Container(width: 180, height: 16, color: Colors.white),
+)
+```
 
 ---
 
@@ -667,6 +744,7 @@ class ExampleScreen extends StatelessWidget {
 
 * Prevents blank spaces while network images load.
 * Improves application performance through image caching.
+* Adds no third party packages to your dependency tree.
 * Reduces memory usage by optimizing decoded image dimensions.
 * Provides polished loading states without additional setup.
 * Handles broken and invalid image URLs safely.

@@ -4,6 +4,18 @@ All notable changes to the `custom_cached_image` package are documented in this 
 
 ---
 
+## 2.0.0
+
+* **Removed every third party dependency.** The package now depends only on the Flutter SDK; `cached_network_image` and `shimmer` are gone.
+* Added a built-in disk cache (`ImageCacheStore`) that stores downloads in the system temporary directory, revalidates stale entries with `ETag` / `If-None-Match` and `Last-Modified` / `If-Modified-Since`, de-duplicates concurrent requests for the same URL, and serves a stale copy when the network fails.
+* Added `CustomImageCacheManager` with `configure`, `evict`, `clear` and `currentSizeInBytes`, plus `ImageCacheConfig` for staleness, max age, max entries, max size, folder name and timeout.
+* Added `CustomCachedImageProvider`, a standalone `ImageProvider` backed by the same cache, usable anywhere Flutter accepts one.
+* Added `CustomShimmer`, a dependency-free shimmer widget that is exported for general skeleton UI use.
+* Added `shimmerPeriod` and `httpHeaders` parameters to `CustomCachedImage`.
+* Web falls back to Flutter's own network image loader, where the browser handles HTTP caching.
+* Added widget and disk-cache tests covering placeholders, fallbacks, cache hits, eviction and request de-duplication.
+* No breaking changes to the `CustomCachedImage` API; the major bump reflects the dependency and caching backend replacement.
+
 ## 1.10.0 - 2026-10-28
 
 ### Changed
